@@ -101,7 +101,7 @@ function get_stoich_anabolic_reaction(elementstring::String, chemFormBiom)
     return stoichAn_O2, stoichAn_HCO3
 end
 
-function get_lambda(elementstring::String, chemFormBiom)
+function get_lambda(elementstring::String, chemFormBiom) #λ
     chemical_indices = extract_composition(elementstring)
     stoich_electron_donor = get_stoich_electron_donor(elementstring)
     stoich_cat_rxns = get_stoich_catabolic_reaction(elementstring)

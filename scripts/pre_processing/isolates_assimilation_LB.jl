@@ -7,7 +7,7 @@ using JLD
 # I/O
 dir                     = "DEBSCRIPTS" in keys(ENV) ? ENV["DEBSCRIPTS"] : pwd()
 df_isolates             = CSV.read(joinpath(dir, "files/input/isolates2traits.csv"), DataFrame, missingstring="N/A")
-df_metabolites          = CSV.read(joinpath(dir, "files/input/1_10_R2A_medium.csv"), DataFrame, missingstring="N/A")
+df_metabolites          = CSV.read(joinpath(dir, "files/input/LB_medium.csv"), DataFrame, missingstring="N/A")
 ########################################
 # metabolite traits
 df_metabolites.Formula  = convert.(String, df_metabolites.Formula)
@@ -110,4 +110,4 @@ a_s               = Vmax./K_D
 ########################################
 # I/O
 # save("/Users/glmarschmann/.julia/dev/DEBmicroTrait/files/output/isolates_assimilation_10_R2A.jld", "rho", ρ_ps, "NSB", N_SB, "KD", K_D, "yEM", y_EM, "yDE", y_DEs, "NC", N_C)
-save("./files/output/isolates_assimilation_10_R2A.jld", "rho", ρ_ps, "NSB", N_SB, "KD", K_D, "yEM", y_EM, "yDE", y_DEs, "NC", N_C)
+save("./files/output/isolates_assimilation_LB.jld", "rho", ρ_ps, "NSB", N_SB, "KD", K_D, "yEM", y_EM, "yDE", y_DEs, "NC", N_C)

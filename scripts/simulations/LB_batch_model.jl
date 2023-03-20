@@ -8,10 +8,10 @@ using LaTeXStrings
 dir                     = "DEBSCRIPTS" in keys(ENV) ? ENV["DEBSCRIPTS"] : pwd()
 
 # Load media composition: Formula, Molecular weight, Medium concentration
-df_metabolites = CSV.read(joinpath(dir, "files/input/1_10_R2A_medium.csv"), DataFrame, missingstring="N/A")
+df_metabolites = CSV.read(joinpath(dir, "files/input/LB_medium.csv"), DataFrame, missingstring="N/A")
 
 # Load isolate parameterization, note: assimilation parameterization depends on media composition
-assimilation            = load(joinpath(dir, "files/output//isolates_assimilation_10_R2A.jld")) # run isolates_assimilation_1_10_R2A.jl first
+assimilation            = load(joinpath(dir, "files/output//isolates_assimilation_LB.jld")) # run isolates_assimilation_1_10_R2A.jl first
 enzymes                 = load(joinpath(dir, "files/output/isolates_enzymes.jld"))
 maintenance             = load(joinpath(dir, "files/output/isolates_maintenance.jld"))
 protein_synthesis       = load(joinpath(dir, "files/output/isolates_protein_synthesis.jld"))
@@ -19,9 +19,9 @@ turnover                = load(joinpath(dir, "files/output/isolates_turnover.jld
 initb                   = load(joinpath(dir, "files/output/isolates_batch_init.jld"))
 
 
-id_isolate = 30 #HA54 is 7, HB15 is 30
+id_isolate = 30 #HA54 is 7, HB15 is 7
 n_isolates = length(id_isolate)
-n_monomers = 55
+n_monomers = 38 
 
 p                 = DEBmicroTrait.init_mixed_medium(id_isolate, n_monomers, assimilation, enzymes, maintenance, protein_synthesis, turnover)
 n_polymers        = p.setup_pars.n_polymers
@@ -51,7 +51,7 @@ Bio = E_tseries.+V_tseries
 # N_cells_tseries  = @. Bio[1]*1e-6*12.011/(initb["rhoB"]*initb["Md"])[1] #rhoB is ρ_bulk (1 g/cm^3) and Md is dry_mass, see isolates_batch_init.jl
 N_cells_tseries  = @. Bio.*1e-6.*12.011./(initb["rhoB"].*initb["Md"])[id_isolate]
 BGE_tseries= Bio./(Bio.+CO2_tseries) #Bacterial Growth Efficiecy aka CUE
-# r    = [DEBmicroTrait.growth!(0.0*ones(1), p.metabolism_pars, [sol[i][1+n_polymers+n_monomers:n_polymers+n_monomers+n_microbes]],[sol[i][1+n_polymers+n_monomers+n_microbes:n_polymers+n_monomers+2*n_microbes]])[1] for i in 1:size(sol.t,1)]
+# r    = [DEBmicroTrait.growth!(0.0*ones(1), p.metabolism_pars, E_tseries[:][i], V_tseries[:][i]) for i in 1:size(sol.t,1)]
 # r_tseries=0.0*ones(D_tseries)
 # for k in 1:length(sol.t)
 #     r_tseries[k] = r[k]
@@ -59,15 +59,16 @@ BGE_tseries= Bio./(Bio.+CO2_tseries) #Bacterial Growth Efficiecy aka CUE
 #r    = [DEBmicroTrait.growth!(0.0*ones(1), p.metabolism_pars, [sol[i][2]], [sol[i][3]])[1] for i in 1:size(sol.t,1)]
 
 #r    = [DEBmicroTrait.growth!(0.0*ones(1), p.metabolism_pars, [sol[i][2]], [sol[i][3]])[1] for i in 1:size(sol.t,1)]
+
 r = [DEBmicroTrait.growth!(0.0*ones(1), p.metabolism_pars, [E_tseries[i]], [V_tseries[i]])[1] for i in 1:size(sol.t,1)]
 
 ############## Plotting
-l = @layout [a b c; d e f] #initialize subplot layout
+l = @layout [a b c;d e f] #initialize subplot layout
 
 p1=plot(sol.t, D_tseries',legend=false)#,label=df_metabolites.Formula')
 ylabel!("[Substrate] (mM)")
 xlabel!("Time (hr)")
-xlims!(0,50)
+xlims!(0,25)
 
 p2=plot(sol.t,E_tseries, legend=false)
 ylabel!("Reserve (mM)")
@@ -88,10 +89,9 @@ xlabel!("Time (hr)")
 p6=plot(sol.t,N_cells_tseries, legend=false)
 ylabel!("Number of Cells (mM)")
 xlabel!("Time (hr)")
-xlims!(0,50)
-
+xlims!(0,25)
 using Plots.PlotMeasures
-p7=plot(p1, p2, p3, p4, p5, p6, layout = l, size=(1200,800),left_margin=[20mm 0mm])
+plot(p1, p2, p3, p4, p5, p6, layout = l, size=(1200,800),left_margin=[20mm 0mm])
 
 l2 = @layout [a b] #initialize subplot layout
 

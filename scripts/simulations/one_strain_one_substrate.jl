@@ -19,10 +19,10 @@ condition(u,t,integrator) = u[1] - 1e-5
 affect!(integrator)       = terminate!(integrator)
 cb                        = ContinuousCallback(condition,affect!)
 
-BGE_tseries       = zeros(39, 83, 500) # Bacterial growth efficiency
-BR_tseries        = zeros(39, 83, 500) # Biomass respiration
-BP_tseries        = zeros(39, 83, 500) # Biomass production
-r_tseries         = zeros(39, 83, 500) # growth rate
+BGE_tseries       = zeros(39, 83, 500)
+BR_tseries        = zeros(39, 83, 500)
+BP_tseries        = zeros(39, 83, 500)
+r_tseries         = zeros(39, 83, 500)
 x_tseries         = zeros(39, 83, 500)
 rG_CO2_tseries    = zeros(39, 83, 500)
 rM_CO2_tseries    = zeros(39, 83, 500)
@@ -140,11 +140,11 @@ J_ED_median     = zeros(39,83)
 J_V_median      = zeros(39,83)
 J_E_median      = zeros(39,83)
 
-#take the median values over the growth curve
+
 for i in 1:39
     for j in 1:83
         try
-            r_median[i,j]  = median(filter(!iszero, r_tseries[i,j,:])) 
+            r_median[i,j]  = median(filter(!iszero, r_tseries[i,j,:]))
         catch
             r_median[i,j]  = NaN
         end
@@ -243,7 +243,7 @@ for i in 1:83
      ontology[:,i] .= df_metabolites.Ontology[i]
  end
 df_out.ontology = vec(ontology)
-CSV.write(joinpath(dir, "files/output2/isolates_batch_model_fluxes.csv"), df_out)
+CSV.write(joinpath(dir, "files/output2/_fluxes.csv"), df_out)
 
 # output BGE-growth
 

@@ -93,7 +93,7 @@ end
 ########################################################################################################################
 # batch model
 function batch_model!(du, u, p, t)
-    D, E, V, X, CO2 = DEBmicroTrait.split_state_batch(u, p)
+    D, E, V, X, CO2 = DEBmicroTrait.split_state_batch(u, p) # D=Substrate, E= Reserve, V=Structure, X=Enzyme concentration, CO2= CO2
     # setup
     n_polymers                = p.setup_pars.n_polymers
     n_monomers                = p.setup_pars.n_monomers
@@ -114,12 +114,12 @@ function batch_model!(du, u, p, t)
     J_V          = biomass_turnover!(zeros(n_microbes), p.turnover_pars, V)
     J_VD, J_VP   = biomass_recycling!(zeros(n_monomers), p.turnover_pars, V)
     J_E          = biomass_turnover!(zeros(n_microbes), p.turnover_pars, E)
-    # system
-    @. du[1+n_polymers:n_polymers+n_monomers] = - J_D + J_ED + J_VD + J_XD
-    @. du[1+n_polymers+n_monomers:n_polymers+n_monomers+n_microbes] =  J_DE - (p.metabolism_pars.k_E - r)*E - J_E
-    @. du[1+n_polymers+n_monomers+n_microbes:n_polymers+n_monomers+2*n_microbes] = r*V - J_V
-    @. du[1+n_polymers+n_monomers+2*n_microbes:n_polymers+n_monomers+2*n_microbes+n_enzymes] = J_EX - J_X
-    @. du[1+n_polymers+n_monomers+2*n_microbes+n_enzymes:n_polymers+n_monomers+2*n_microbes+n_enzymes+n_microbes] = rG_CO2 + rX_CO2 + rM_CO2 + J_DE_CO2
+    # system of differential equations
+    @. du[1+n_polymers:n_polymers+n_monomers] = - J_D + J_ED + J_VD + J_XD #concentration of monomers
+    @. du[1+n_polymers+n_monomers:n_polymers+n_monomers+n_microbes] =  J_DE - (p.metabolism_pars.k_E - r)*E - J_E # Reserve biomass 
+    @. du[1+n_polymers+n_monomers+n_microbes:n_polymers+n_monomers+2*n_microbes] = r*V - J_V # Structural biomass
+    @. du[1+n_polymers+n_monomers+2*n_microbes:n_polymers+n_monomers+2*n_microbes+n_enzymes] = J_EX - J_X # Enzyme concentration
+    @. du[1+n_polymers+n_monomers+2*n_microbes+n_enzymes:n_polymers+n_monomers+2*n_microbes+n_enzymes+n_microbes] = rG_CO2 + rX_CO2 + rM_CO2 + J_DE_CO2 # total CO2 production
     return du
 end
 ########################################################################################################################
