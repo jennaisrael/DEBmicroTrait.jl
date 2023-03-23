@@ -7,12 +7,19 @@ using JLD
 # I/O
 dir                     = "DEBSCRIPTS" in keys(ENV) ? ENV["DEBSCRIPTS"] : pwd()
 df_isolates             = CSV.read(joinpath(dir, "files/input/isolates2traits.csv"), DataFrame, missingstring="N/A")
-df_metabolites          = CSV.read(joinpath(dir, "files/input/1_10_R2A_medium.csv"), DataFrame, missingstring="N/A")
+###########Add a step here that aggregates the duplicate entries in the media input file so the "Formula" column entries are unique
+###########and the sum of all the different sources
+df_media_raw            = CSV.read(joinpath(dir, "files/input/1_10_R2A_medium.csv"), DataFrame, missingstring="N/A")
+gdf = groupby(df_media_raw, [:Formula, :Compound, :Ontology, :Molecular_weight]) #need columns named "Formula", "Name"(Name should probably be "Compouund" instead), "Ontology", "Molecular_weight" and "Concentration" (used in the batch model)
+unique_metabolites = combine(gdf, :Concentration => sum)
+#write this to a CSV
+CSV.write(joinpath(dir, "files/output2/1_10_R2A_medium_unique.csv"),unique_metabolites)
+df_metabolites          = CSV.read(joinpath(dir, "files/output2/1_10_R2A_medium_unique.csv"), DataFrame, missingstring="N/A")
 ########################################
-# metabolite traits
+# metabolite traits, replace "Name" with "Compound"
 df_metabolites.Formula  = convert.(String, df_metabolites.Formula)
-N_C                     = zeros(size(df_metabolites.Name,1))
-for i in 1:size(df_metabolites.Name,1)
+N_C                     = zeros(size(df_metabolites.Compound,1))
+for i in 1:size(df_metabolites.Compound,1)
     elementstring       = df_metabolites.Formula[i]
     N_C[i]              = DEBmicroTrait.extract_composition(elementstring)[1]
 end
@@ -33,10 +40,10 @@ z_auxins                = reshape(convert(Array{Float64,1}, df_isolates.z_auxins
 genome_distr            = vcat(z_sugars, z_organics, z_aminos, z_fattys, z_nucleos, z_auxins)
 ########################################
 # estimate transporter density
-ρ_ps                    = zeros(size(df_metabolites.Name,1), size(V_cell,1))
-y_DEs                   = zeros(size(df_metabolites.Name,1), size(V_cell,1))
+ρ_ps                    = zeros(size(df_metabolites.Compound,1), size(V_cell,1))
+y_DEs                   = zeros(size(df_metabolites.Compound,1), size(V_cell,1))
 
-for j in 1:size(df_metabolites.Name,1)
+for j in 1:size(df_metabolites.Compound,1)
     if df_metabolites.Ontology[j] == "Sugars"
         for i in 1:size(V_cell,1)
             find_ρ(x)   = DEBmicroTrait.constrain_transporter_density_cost(x, [V_cell[i]], [Min_gen_time[i]], [Gram_stain[i]], [rrn_copies[i]], [y_EM[i]], df_metabolites.Formula[j])

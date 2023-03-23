@@ -8,7 +8,8 @@ using LaTeXStrings
 dir                     = "DEBSCRIPTS" in keys(ENV) ? ENV["DEBSCRIPTS"] : pwd()
 
 # Load media composition: Formula, Molecular weight, Medium concentration
-df_metabolites = CSV.read(joinpath(dir, "files/input/1_10_R2A_medium.csv"), DataFrame, missingstring="N/A")
+###EDIT 03/21: read unique media file
+df_metabolites = CSV.read(joinpath(dir, "files/output2/1_10_R2A_medium_unique.csv"), DataFrame, missingstring="N/A")
 
 # Load isolate parameterization, note: assimilation parameterization depends on media composition
 assimilation            = load(joinpath(dir, "files/output//isolates_assimilation_10_R2A.jld")) # run isolates_assimilation_1_10_R2A.jl first
@@ -21,7 +22,7 @@ initb                   = load(joinpath(dir, "files/output/isolates_batch_init.j
 
 id_isolate = 30 #HA54 is 7, HB15 is 30
 n_isolates = length(id_isolate)
-n_monomers = 55
+n_monomers = 23 #only 23 unique metabolites (55 with duplicates)
 
 p                 = DEBmicroTrait.init_mixed_medium(id_isolate, n_monomers, assimilation, enzymes, maintenance, protein_synthesis, turnover)
 n_polymers        = p.setup_pars.n_polymers
@@ -32,7 +33,7 @@ n_microbes        = p.setup_pars.n_microbes
 u0                                                                         = zeros(p.setup_pars.dim) #47, 43 monomers+ 0 polymers+ 1 strain + reserve biomass+ structure biomass+ enzyme concentration +total respiration
 u0[1+n_polymers+n_monomers:n_polymers+n_monomers+n_microbes]              .= 0.9*initb["Bio0"][id_isolate] #90% of initial biomass is reserve
 u0[1+n_polymers+n_monomers+n_microbes:n_polymers+n_monomers+2*n_microbes] .= 0.1*initb["Bio0"][id_isolate] #10% structure
-u0[1+n_polymers:n_polymers+n_monomers]                                    .= df_metabolites.Concentration # initalizes the concentrations of monomers 
+u0[1+n_polymers:n_polymers+n_monomers]                                    .= df_metabolites.Concentration_sum # initalizes the concentrations of monomers 
 
 
 

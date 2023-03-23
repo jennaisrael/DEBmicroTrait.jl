@@ -8,7 +8,7 @@ using LaTeXStrings
 dir                     = "DEBSCRIPTS" in keys(ENV) ? ENV["DEBSCRIPTS"] : pwd()
 
 # Load media composition: Formula, Molecular weight, Medium concentration
-df_metabolites = CSV.read(joinpath(dir, "files/input/LB_medium.csv"), DataFrame, missingstring="N/A")
+df_metabolites = CSV.read(joinpath(dir, "files/output2/LB_medium_unique.csv"), DataFrame, missingstring="N/A")
 
 # Load isolate parameterization, note: assimilation parameterization depends on media composition
 assimilation            = load(joinpath(dir, "files/output//isolates_assimilation_LB.jld")) # run isolates_assimilation_1_10_R2A.jl first
@@ -21,7 +21,7 @@ initb                   = load(joinpath(dir, "files/output/isolates_batch_init.j
 
 id_isolate = 30 #HA54 is 7, HB15 is 7
 n_isolates = length(id_isolate)
-n_monomers = 38 
+n_monomers = 22 #22 unique, previously 38
 
 p                 = DEBmicroTrait.init_mixed_medium(id_isolate, n_monomers, assimilation, enzymes, maintenance, protein_synthesis, turnover)
 n_polymers        = p.setup_pars.n_polymers
@@ -32,7 +32,7 @@ n_microbes        = p.setup_pars.n_microbes
 u0                                                                         = zeros(p.setup_pars.dim) #47, 43 monomers+ 0 polymers+ 1 strain + reserve biomass+ structure biomass+ enzyme concentration +total respiration
 u0[1+n_polymers+n_monomers:n_polymers+n_monomers+n_microbes]              .= 0.9*initb["Bio0"][id_isolate] #90% of initial biomass is reserve
 u0[1+n_polymers+n_monomers+n_microbes:n_polymers+n_monomers+2*n_microbes] .= 0.1*initb["Bio0"][id_isolate] #10% structure
-u0[1+n_polymers:n_polymers+n_monomers]                                    .= df_metabolites.Concentration # initalizes the concentrations of monomers 
+u0[1+n_polymers:n_polymers+n_monomers]                                    .= df_metabolites.Concentration_sum # initalizes the concentrations of monomers 
 
 
 
@@ -91,7 +91,7 @@ ylabel!("Number of Cells (mM)")
 xlabel!("Time (hr)")
 xlims!(0,25)
 using Plots.PlotMeasures
-plot(p1, p2, p3, p4, p5, p6, layout = l, size=(1200,800),left_margin=[20mm 0mm])
+p7=plot(p1, p2, p3, p4, p5, p6, layout = l, size=(1200,800),left_margin=[20mm 0mm])
 
 l2 = @layout [a b] #initialize subplot layout
 
