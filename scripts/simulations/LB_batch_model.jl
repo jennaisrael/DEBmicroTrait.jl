@@ -19,7 +19,7 @@ turnover                = load(joinpath(dir, "files/output/isolates_turnover.jld
 initb                   = load(joinpath(dir, "files/output/isolates_batch_init.jld"))
 
 
-id_isolate = 30 #HA54 is 7, HB15 is 7
+id_isolate = 7 #HA54 is 7, HB15 is 30
 n_isolates = length(id_isolate)
 n_monomers = 22 #22 unique, previously 38
 
@@ -68,28 +68,32 @@ l = @layout [a b c;d e f] #initialize subplot layout
 p1=plot(sol.t, D_tseries',legend=false)#,label=df_metabolites.Formula')
 ylabel!("[Substrate] (mM)")
 xlabel!("Time (hr)")
-xlims!(0,25)
+xlims!(0,50)
 
 p2=plot(sol.t,E_tseries, legend=false)
 ylabel!("Reserve (mM)")
 xlabel!("Time (hr)")
+xlims!(0,50)
 
 p3=plot(sol.t, V_tseries, legend=false)
 ylabel!("[Structural] (mM)")
 xlabel!("Time (hr)")
+xlims!(0,50)
 
 p4=plot(sol.t, X_tseries, legend=false)
 ylabel!("[Enzyme] (mM)")
 xlabel!("Time (hr)")
+xlims!(0,50)
 
 p5=plot(sol.t,CO2_tseries, legend=false)
 ylabel!("Cummulative [CO2] (mM)")
 xlabel!("Time (hr)")
+xlims!(0,50)
 
-p6=plot(sol.t,N_cells_tseries, legend=false)
+p6=plot(sol.t,N_cells_tseries, yscale=:log10,legend=false)
 ylabel!("Number of Cells (mM)")
 xlabel!("Time (hr)")
-xlims!(0,25)
+xlims!(0,50)
 using Plots.PlotMeasures
 p7=plot(p1, p2, p3, p4, p5, p6, layout = l, size=(1200,800),left_margin=[20mm 0mm])
 
