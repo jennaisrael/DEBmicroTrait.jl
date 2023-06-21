@@ -10,16 +10,18 @@ dir                     = "DEBSCRIPTS" in keys(ENV) ? ENV["DEBSCRIPTS"] : pwd()
 # Load media composition: Formula, Molecular weight, Medium concentration
 df_metabolites = CSV.read(joinpath(dir, "files/output2/LB_medium_unique.csv"), DataFrame, missingstring="N/A")
 
+
 # Load isolate parameterization, note: assimilation parameterization depends on media composition
-assimilation            = load(joinpath(dir, "files/output//isolates_assimilation_LB.jld")) # run isolates_assimilation_1_10_R2A.jl first
-enzymes                 = load(joinpath(dir, "files/output/isolates_enzymes.jld"))
-maintenance             = load(joinpath(dir, "files/output/isolates_maintenance.jld"))
-protein_synthesis       = load(joinpath(dir, "files/output/isolates_protein_synthesis.jld"))
-turnover                = load(joinpath(dir, "files/output/isolates_turnover.jld"))
-initb                   = load(joinpath(dir, "files/output/isolates_batch_init.jld"))
+fileend                 = "LB_HB15_live_mean.jld"
+assimilation            = load(joinpath(dir, string("files/output//isolates_assimilation_",fileend))) # run isolates_assimilation_1_10_R2A.jl first
+enzymes                 = load(joinpath(dir, string("files/output/isolates_enzymes_",fileend)))
+maintenance             = load(joinpath(dir, string("files/output/isolates_maintenance_",fileend)))
+protein_synthesis       = load(joinpath(dir, string("files/output/isolates_protein_synthesis_",fileend)))
+turnover                = load(joinpath(dir, string("files/output/isolates_turnover_",fileend)))
+initb                   = load(joinpath(dir, string("files/output/isolates_batch_init_",fileend)))
 
 
-id_isolate = 30 #HA54 is 7, HB15 is 30
+id_isolate = 1 #In all isolate csv HA54 is 7, HB15 is 30. BUT for running one strain at a time, just pass 1
 n_isolates = length(id_isolate)
 n_monomers = 22 #22 unique, previously 38
 
@@ -29,6 +31,7 @@ n_monomers        = p.setup_pars.n_monomers
 n_microbes        = p.setup_pars.n_microbes
 
  #initial conditions for substrate, reserve, and structural biomass (should have same )
+ #no longer need id_isolate to index initb bc only one initialized in preprocessing
 u0                                                                         = zeros(p.setup_pars.dim) #47, 43 monomers+ 0 polymers+ 1 strain + reserve biomass+ structure biomass+ enzyme concentration +total respiration
 u0[1+n_polymers+n_monomers:n_polymers+n_monomers+n_microbes]              .= 0.9*initb["Bio0"][id_isolate] #90% of initial biomass is reserve
 u0[1+n_polymers+n_monomers+n_microbes:n_polymers+n_monomers+2*n_microbes] .= 0.1*initb["Bio0"][id_isolate] #10% structure
@@ -63,7 +66,7 @@ BGE_tseries= Bio./(Bio.+CO2_tseries) #Bacterial Growth Efficiecy aka CUE
 r = [DEBmicroTrait.growth!(0.0*ones(1), p.metabolism_pars, [E_tseries[i]], [V_tseries[i]])[1] for i in 1:size(sol.t,1)]
 
 ############## Plotting
-l = @layout [a b c;d e f] #initialize subplot layout
+l = @layout [a b c d ;e f g h] #initialize subplot layout
 
 p1=plot(sol.t, D_tseries',legend=false)#,label=df_metabolites.Formula')
 ylabel!("[Substrate] (mM)")
@@ -95,9 +98,9 @@ ylabel!("Number of Cells (mM)")
 xlabel!("Time (hr)")
 xlims!(0,50)
 using Plots.PlotMeasures
-p7=plot(p1, p2, p3, p4, p5, p6, layout = l, size=(1200,800),left_margin=[20mm 0mm])
+#p7=plot(p1, p2, p3, p4, p5, p6, layout = l, size=(1200,800),left_margin=[20mm 0mm])
 
-l2 = @layout [a b] #initialize subplot layout
+#l2 = @layout [a b] #initialize subplot layout
 
 p8=plot(sol.t,BGE_tseries, legend=false)
 ylabel!("BGE")
@@ -109,8 +112,8 @@ ylabel!("growth rate [1/hr]")
 xlabel!("Time (hr)")
 xlims!(0,50)
 
-p10= plot(p8, p9, layout = l2, size=(1200,800),left_margin=[20mm 0mm])
-display(p7)
+p10= plot(p1, p2, p3, p4, p5, p6, p8, p9, layout = l, size=(1200,800),left_margin=[20mm 0mm])
+#display(p7)
 display(p10)
 
 # #Added from rhizoshpere_batch_model to calculate growth rate and BGE
