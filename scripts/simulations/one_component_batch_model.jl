@@ -42,10 +42,12 @@ ylabel!("[Substrate] (mM)")
 title!("LB")
 
 #repeat for R2A
-KD2=get(assimilation_R2A, "KD",1)
-x2=LinRange(1,23,23)
+
 df_R2A = CSV.read(joinpath(dir, "files/output2/1_10_R2A_medium_unique.csv"), DataFrame, missingstring="N/A")
 assimilation_R2A            = load(joinpath(dir, "files/output//isolates_assimilation_10_R2A.jld")) 
+
+KD2=get(assimilation_R2A, "KD",1)
+x2=LinRange(1,23,23)
 
 p2=plot(x2,KD2[:,[7,30]] , label=["HB15" "HA54"] )#label=df_isolates.Abbreviation)
 plot!(x2, df_R2A.Concentration_sum, label="1/10 R2A C_0",linestyle=:dash,linewidth=3,lc=:black)

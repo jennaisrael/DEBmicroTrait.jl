@@ -11,6 +11,12 @@ dir                     = "DEBSCRIPTS" in keys(ENV) ? ENV["DEBSCRIPTS"] : pwd()
 ###EDIT 03/21: read unique media file
 df_metabolites = CSV.read(joinpath(dir, "files/output2/1_10_R2A_medium_unique.csv"), DataFrame, missingstring="N/A")
 
+id_isolate = 7 #HA54 is 7, HB15 is 30, HA57 is 37, HD57 is 36 
+iso_name = "HA54"
+datestr = "_2024_03_30"
+
+writeflag=1
+
 # Load isolate parameterization, note: assimilation parameterization depends on media composition
 assimilation            = load(joinpath(dir, "files/output//isolates_assimilation_10_R2A.jld")) # run isolates_assimilation_1_10_R2A.jl first
 enzymes                 = load(joinpath(dir, "files/output/isolates_enzymes.jld"))
@@ -20,7 +26,7 @@ turnover                = load(joinpath(dir, "files/output/isolates_turnover.jld
 initb                   = load(joinpath(dir, "files/output/isolates_batch_init.jld"))
 
 
-id_isolate = 7 #HA54 is 7, HB15 is 30
+#id_isolate = 30 #HA54 is 7, HB15 is 30
 n_isolates = length(id_isolate)
 n_monomers = 23 #only 23 unique metabolites (55 with duplicates)
 
@@ -48,6 +54,72 @@ E_tseries =  sol[1+n_polymers+n_monomers:n_polymers+n_monomers+n_microbes,:]'   
 V_tseries =  sol[1+n_polymers+n_monomers+n_microbes:n_polymers+n_monomers+2*n_microbes,:]'    #structural biomass mM
 X_tseries =  sol[n_polymers+n_monomers+2*n_microbes+1,:]    #enzyme concentration mM
 CO2_tseries =  sol[n_polymers+n_monomers+2*n_microbes+2,:]  # CO2 cummulative mM
+
+rG_CO2_tseries    = zeros(n_t) # growth respiration
+rM_CO2_tseries    = zeros(n_t) # maintenance respiration
+rX_CO2_tseries    = zeros( n_t) # enzyme production respiration
+
+#growth rate
+r = [DEBmicroTrait.growth!(0.0*ones(1), p.metabolism_pars, [E_tseries[i]], [V_tseries[i]])[1] for i in 1:size(sol.t,1)]
+
+for k in 1:length(sol.t)    
+    x, rG_CO2, rM_CO2, rX_CO2 = DEBmicroTrait.growth_production!(r[k], p.metabolism_pars, [E_tseries[k]], [V_tseries[k]])
+    rG_CO2_tseries[k] = rG_CO2[1] #CO2 growth
+    rM_CO2_tseries[k] = rM_CO2[1] #CO2 maintenance
+    rX_CO2_tseries[k] = rX_CO2[1] #CO2 enzyme
+        
+end
+
+#calculate uptake rate 
+J_D_tseries       = zeros(n_t,n_monomers) # uptake rate
+J_DE_tseries      = zeros(n_t, n_monomers) # assimilation flux
+J_DE_CO2_tseries  = zeros(n_t, n_monomers) # assimilation respiration
+for j in 1:n_monomers
+    for k in 1:length(sol.t)
+        J_D      = DEBmicroTrait.uptake!(zeros(1), p.assimilation_pars, D_tseries[:,3], [V_tseries[k]]) #don't put brackets around D changes data type already a vector
+        J_D_tseries[k,j] = J_D[1]
+        J_DE  = DEBmicroTrait.assimilation!(zeros(1), p.assimilation_pars, D_tseries[:,3], [V_tseries[k]]) #assimilation flux
+        J_DE_tseries[k,j] = J_DE[1]
+        J_DE_CO2 = DEBmicroTrait.assimilation_production!(zeros(1), p.assimilation_pars, D_tseries[:,3], [V_tseries[k]]) #assimilation respiration
+        J_DE_CO2_tseries[k,j] = J_DE_CO2[1]
+        
+    end
+end
+
+#sum uptake across sources
+J_D_tseries_total=sum(J_D_tseries,dims=2)
+
+# for k in 1:length(sol.t)
+#     x, rG_CO2, rM_CO2, rX_CO2 = DEBmicroTrait.growth_production!(r[k], p.metabolism_pars, [sol[k][2]], [sol[k][3]])
+#     x_tseries[i,j,k] = x[1]
+#     rG_CO2_tseries[i,j,k] = rG_CO2[1]
+#     rM_CO2_tseries[i,j,k] = rM_CO2[1]
+#     rX_CO2_tseries[i,j,k] = rX_CO2[1]
+#     J_EX   = DEBmicroTrait.enzyme_production!(x[1], p.metabolism_pars, [sol[k][3]])
+#     J_EX_tseries[i,j,k] = J_EX[1]
+# end
+
+
+
+plot(sol.t,rG_CO2_tseries,label="Growth")
+plot!(twinx(), rM_CO2_tseries,label="Maintenance")
+plot!(twinx(),  rX_CO2_tseries, label="Emzyme")
+plot!(sol.t,  rG_CO2_tseries+rM_CO2_tseries+ rX_CO2_tseries, label="total")
+
+ylabel!("CO2 rate")
+xlabel!("Time (hr)")
+xlims!(0,50)
+
+# for k in 1:length(sol.t)
+#     x, rG_CO2, rM_CO2, rX_CO2 = DEBmicroTrait.growth_production!(r[k], p.metabolism_pars, [sol[k][2]], [sol[k][3]])
+#     x_tseries[i,j,k] = x[1]
+#     rG_CO2_tseries = rG_CO2[1]
+#     rM_CO2_tseries[k] = rM_CO2[1]
+#     rX_CO2_tseries[k] = rX_CO2[1]
+#     J_EX   = DEBmicroTrait.enzyme_production!(x[1], p.metabolism_pars, [sol[k][3]])
+#     J_EX_tseries[i,j,k] = J_EX[1]
+# end
+
 Bio = E_tseries.+V_tseries
 # N_cells_tseries  = @. Bio[1]*1e-6*12.011/(initb["rhoB"]*initb["Md"])[1] #rhoB is ρ_bulk (1 g/cm^3) and Md is dry_mass, see isolates_batch_init.jl
 N_cells_tseries  = @. Bio.*1e-6.*12.011./(initb["rhoB"].*initb["Md"])[id_isolate]
@@ -60,61 +132,120 @@ BGE_tseries= Bio./(Bio.+CO2_tseries) #Bacterial Growth Efficiecy aka CUE
 #r    = [DEBmicroTrait.growth!(0.0*ones(1), p.metabolism_pars, [sol[i][2]], [sol[i][3]])[1] for i in 1:size(sol.t,1)]
 
 #r    = [DEBmicroTrait.growth!(0.0*ones(1), p.metabolism_pars, [sol[i][2]], [sol[i][3]])[1] for i in 1:size(sol.t,1)]
-r = [DEBmicroTrait.growth!(0.0*ones(1), p.metabolism_pars, [E_tseries[i]], [V_tseries[i]])[1] for i in 1:size(sol.t,1)]
+
+
+
+rtotal_CO2=rG_CO2_tseries+rM_CO2_tseries+ rX_CO2_tseries
+#rother=ones(size(rtotal_CO2)).-(J_D_tseries_total./(rtotal_CO2+J_D_tseries_total))
+rother=(J_D_tseries_total./((rtotal_CO2+sum(J_DE_CO2_tseries,dims=2))+J_D_tseries_total))
+
+rcell=J_D_tseries_total./N_cells_tseries;
+
+reff=r./rtotal_CO2 #growth rate/ overall respiration rate
 
 ############## Plotting
-l = @layout [a b c; d e f] #initialize subplot layout
+l = @layout [a b c d ;e f g h] #initialize subplot layout
 
 p1=plot(sol.t, D_tseries',legend=false)#,label=df_metabolites.Formula')
 ylabel!("[Substrate] (mM)")
 xlabel!("Time (hr)")
-xlims!(0,35)
+xlims!(0,50)
 
-p2=plot(sol.t,E_tseries, legend=false)
-ylabel!("Reserve (mM)")
-xlabel!("Time (hr)")
-xlims!(0,35)
+# p2=plot(sol.t,E_tseries, legend=false)
+# ylabel!("Reserve (mM)")
+# xlabel!("Time (hr)")
+# xlims!(0,50)
 
 p3=plot(sol.t, V_tseries, legend=false)
 ylabel!("[Structural] (mM)")
 xlabel!("Time (hr)")
-xlims!(0,35)
+xlims!(0,50)
 
 p4=plot(sol.t, X_tseries, legend=false)
 ylabel!("[Enzyme] (mM)")
 xlabel!("Time (hr)")
-xlims!(0,35)
+xlims!(0,50)
 
 p5=plot(sol.t,CO2_tseries, legend=false)
 ylabel!("Cummulative [CO2] (mM)")
 xlabel!("Time (hr)")
-xlims!(0,90)
+xlims!(0,50)
 
-p6=plot(sol.t,N_cells_tseries, yscale=:log10, legend=false)
+p6=plot(sol.t,N_cells_tseries, yscale=:log10,legend=false)
 ylabel!("Number of Cells (mM)")
 xlabel!("Time (hr)")
-xlims!(0,35)
+xlims!(0,50)
+
+#p7=plot(sol.t,)
 
 using Plots.PlotMeasures
-p7=plot(p1, p2, p3, p4, p5, p6, layout = l, size=(1200,800),left_margin=[20mm 0mm])
+#p7=plot(p1, p2, p3, p4, p5, p6, layout = l, size=(1200,800),left_margin=[20mm 0mm])
 
-l2 = @layout [a b] #initialize subplot layout
+#l2 = @layout [a b] #initialize subplot layout
 
-p8=plot(sol.t,BGE_tseries, legend=false)
-ylabel!("BGE")
+# p8=plot(sol.t,BGE_tseries, legend=false)
+# ylabel!("BGE")
+# xlabel!("Time (hr)")
+# xlims!(0,50)
+
+p8=plot(sol.t,rtotal_CO2, legend=false)
+ylabel!("Respiration Rate [1/hr]")
 xlabel!("Time (hr)")
-xlims!(0,35)
+xlims!(0,50)
 
 p9=plot(sol.t, r, legend=false)
 ylabel!("growth rate [1/hr]")
 xlabel!("Time (hr)")
-xlims!(0,25)
+xlims!(0,50)
 
-p10= plot(p8, p9, layout = l2, size=(1200,800),left_margin=[20mm 0mm])
-display(p7)
+# p2=plot(sol.t, reff, legend=false)
+# ylabel!("Growth Rate/ Respiration Rate []")
+# xlabel!("Time (hr)")
+# xlims!(0,50)
+# ylims!(-10,150)
+
+# p2=plot(sol.t, rother, legend=false)
+# ylabel!("1-Uptake Rate/ Respiration Rate []")
+# xlabel!("Time (hr)")
+# xlims!(0,50)
+# #ylims!(-10,150)
+
+p2=plot(sol.t, rcell.*E_tseries, legend=false)
+ylabel!("Uptake Rate/ Cell [mol-C/ h/ cell]")
+xlabel!("Time (h)")
+#ylabel!("Uptake Rate/ Cell [mol-C/mol reserve/ h/ cell]")
+xlabel!("Time (h)")
+xlims!(0,50)
+#ylims!(-10,150)
+
+
+# p2=plot(sol.t, J_D_tseries_total, legend=false)
+# ylabel!("Uptake rate")
+# xlabel!("Time (hr)")
+# xlims!(0,50)
+# #ylims!(-10,150)
+
+
+# p2=plot(sol.t, sum(J_DE_tseries,dims=2)./N_cells_tseries, legend=false)
+# ylabel!("Assimilation rat/cell")
+# xlabel!("Time (hr)")
+# xlims!(0,50)
+# #ylims!(-10,150)
+
+# p2=plot(sol.t, sum(J_DE_tseries,dims=2)./N_cells_tseries, legend=false)
+# ylabel!("Uptake rate/growth rate")
+# xlabel!("Time (hr)")
+# xlims!(0,50)
+# #ylims!(-10,150)
+
+p10= plot(p1, p3, p4, p5, p6, p8, p9, p2,layout = l, size=(1200,800),left_margin=[20mm 0mm])
+#display(p7)
 display(p10)
 
-# #Added from rhizoshpere_batch_model to calculate growth rate and BGE
+
+# #Add e
+
+# # #Added from rhizoshpere_batch_model to calculate growth rate and BGE
 
 # BGE_tseries       = zeros(n_isolates, n_monomers, n_t) # Bacterial growth efficiency, BGE = BP/ (BP+BR)
 # BR_tseries        = zeros(n_isolates, n_monomers, n_t) # Biomass respiration = assilation respiration + growth respiration + enzyme production respiration + maintenance respiration
@@ -170,9 +301,6 @@ display(p10)
 #             r_tseries[i,j,k] = r[k]
 #         end
 
-#     end
-# end
-
 #         for k in 1:length(sol.t)
 #             x, rG_CO2, rM_CO2, rX_CO2 = DEBmicroTrait.growth_production!(r[k], p.metabolism_pars, [sol[k][2]], [sol[k][3]])
 #             x_tseries[i,j,k] = x[1]
@@ -208,15 +336,36 @@ display(p10)
 #     end    
 # end
 
-# df_out_tseries         = DataFrame()
-# df_out_tseries.time    = vec(t_tseries)
-# df_out_tseries.N_cells = vec(N_cells_tseries)
-# df_out_tseries.BR      = vec(BR_tseries)
-# df_out_tseries.CO2     = vec(CO2_tseries)
-# df_out_tseries.BGE     = vec(BGE_tseries)
+# plot(sol.t,rG_CO2_tseries, rM_CO2_tseries,  rX_CO2_tseries,  rG_CO2_tseries+rM_CO2_tseries+ rX_CO2_tseries, legend=false)
+# ylabel!("CO2 rate")
+# xlabel!("Time (hr)")
+# xlims!(0,50)
+
+# # p9=plot(sol.t, r, legend=false)
+# # ylabel!("growth rate [1/hr]")
+# # xlabel!("Time (hr)")
+# # xlims!(0,50)
+
+# # p10= plot(p1, p2, p3, p4, p5, p6, p8, p9, layout = l, size=(1200,800),left_margin=[20mm 0mm])
+# # #display(p7)
+# # display(p10)
+
+
+
+df_out_tseries         = DataFrame()
+df_out_tseries.time    = vec(sol.t)
+df_out_tseries.N_cells = vec(N_cells_tseries)
+#df_out_tseries.BR      = vec(BR_tseries)
+df_out_tseries.CO2     = vec(CO2_tseries)
+df_out_tseries.BGE     = vec(BGE_tseries)
+df_out_tseries.rcell     = vec(rcell)
+
 
 
 # # #plot N_cells_tseries (number of cells), BR_tseries (respiration), CO2_tseries, and BGE_tseries (Growth efficiency), 
 # #Note need to update file name for different strains
 
-# CSV.write(joinpath(dir, "files/output2/1_10_R2A_batch_model_tseries_HA54.csv"), df_out_tseries)
+#CSV.write(joinpath(dir, "files/output2/1_10_R2A_batch_model_tseries_HB15_20231213.csv"), df_out_tseries)
+if writeflag >0
+    CSV.write(joinpath(dir, "files/output2/1_10_R2A_batch_model_tseries_"*iso_name*datestr*".csv"), df_out_tseries)
+end

@@ -7,13 +7,11 @@ using LaTeXStrings
 
 dir                     = "DEBSCRIPTS" in keys(ENV) ? ENV["DEBSCRIPTS"] : pwd()
 
-writeflag=1
-
 # Load media composition: Formula, Molecular weight, Medium concentration
-df_metabolites = CSV.read(joinpath(dir, "files/output2/LB_medium_unique.csv"), DataFrame, missingstring="N/A")
+df_metabolites = CSV.read(joinpath(dir, "files/output2/1_10_LB_medium_unique.csv"), DataFrame, missingstring="N/A")
 
 # Load isolate parameterization, note: assimilation parameterization depends on media composition
-assimilation            = load(joinpath(dir, "files/output//isolates_assimilation_LB.jld")) # run isolates_assimilation_1_10_R2A.jl first
+assimilation            = load(joinpath(dir, "files/output//isolates_assimilation_1_10_LB.jld")) # run isolates_assimilation_1_10_R2A.jl first
 enzymes                 = load(joinpath(dir, "files/output/isolates_enzymes.jld"))
 maintenance             = load(joinpath(dir, "files/output/isolates_maintenance.jld"))
 protein_synthesis       = load(joinpath(dir, "files/output/isolates_protein_synthesis.jld"))
@@ -21,7 +19,8 @@ turnover                = load(joinpath(dir, "files/output/isolates_turnover.jld
 initb                   = load(joinpath(dir, "files/output/isolates_batch_init.jld"))
 
 
-id_isolate = 30 #HA54 is 7, HB15 is 30, HA57 in 37
+id_isolate = 30
+ #HA54 is 7, HB15 is 30, HA57 in 37
 n_isolates = length(id_isolate)
 n_monomers = 22 #22 unique, previously 38
 
@@ -209,17 +208,15 @@ display(p10)
 #     end    
 # end
 
-df_out_tseries         = DataFrame()
-df_out_tseries.time    = vec(sol.t)
-df_out_tseries.N_cells = vec(N_cells_tseries)
-#df_out_tseries.BR      = vec(BR_tseries)
-df_out_tseries.CO2     = vec(CO2_tseries)
-df_out_tseries.BGE     = vec(BGE_tseries)
+# df_out_tseries         = DataFrame()
+# df_out_tseries.time    = vec(t_tseries)
+# df_out_tseries.N_cells = vec(N_cells_tseries)
+# df_out_tseries.BR      = vec(BR_tseries)
+# df_out_tseries.CO2     = vec(CO2_tseries)
+# df_out_tseries.BGE     = vec(BGE_tseries)
 
 
 # # #plot N_cells_tseries (number of cells), BR_tseries (respiration), CO2_tseries, and BGE_tseries (Growth efficiency), 
 # #Note need to update file name for different strains
 
-if writeflag>0
-CSV.write(joinpath(dir, "files/output2/LB_batch_model_tseries_HB15_2024_03_30.csv"), df_out_tseries)
-end
+# CSV.write(joinpath(dir, "files/output2/1_10_R2A_batch_model_tseries_HA54.csv"), df_out_tseries)

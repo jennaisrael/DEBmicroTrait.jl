@@ -1,0 +1,5 @@
+﻿Name,Quantity,Unit,Compound,Formula,Quantity,Unit,Molecular_weight,Concentration,Unit,Ontology
+BM,0.25,g,Ammonium Chloride,NH4Cl,100,%,53.491,4.972003642,mmol/L,Nitrogen
+BM,0.6,g,Sodium Phosphate-monobasic,NaH2PO4,100,%,119.98,5.320035609,mmol/L,Phosphate
+BM,0.1,g,Potassium Chloride,KCl,100,%,74.5513,1.426976843,mmol/L,Potassium
+BM,2.5,g,Sodium Bicarbonate,NaHCO3,100,%,84.007,31.65896256,mmol/L,Buffer

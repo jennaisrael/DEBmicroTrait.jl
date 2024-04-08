@@ -1,0 +1,23 @@
+Formula,Compound,Ontology,Molecular_weight,Concentration_sum
+C3H7NO2,alanine,Amino acids,89.0932,0.651
+C4H7NO4,aspartic acid,Amino acids,133.103,0.379
+C5H9NO4,glutamic acid,Amino acids,147.13,1.4000000000000001
+C2H5NO2,glycine,Amino acids,75.067,0.387
+C6H9NO2,histidine,Amino acids,155.157,0.0935
+C6H13NO2,isoleucine,Amino acids,131.175,0.42
+C6H13NO3,leucine,Amino acids,131.175,0.537
+C6H14N2O2,lysine,Amino acids,146.19,0.514
+C5H11NO2S,methionine,Amino acids,149.21,0.1206
+C9H11NO2,phenylalanine,Amino acids,165.192,0.29680000000000006
+C5H9NO2,proline,Amino acids,115.132,0.782
+C3H7NO3,serine,Amino acids,105.093,0.2762
+C4H9NO3,threonine,Amino acids,119.12,0.1932
+C9H11NO3,tyrosine,Amino acids,181.191,0.055200000000000006
+C5H11NO2,valine,Amino acids,117.148,0.6280000000000001
+C6H14N4O2,arginine,Amino acids,174.2011,0.2187
+C5H5N5,adenine,Nucleotides,135.15,0.0327
+C5H5N5O,guanine,Nucleotides,151.13,0.030600000000000002
+C4H5N3O,cytosine,Nucleotides,111.1,0.019600000000000003
+C4H4N2O2,uracil,Nucleotides,112.09,0.028100000000000003
+C6H12O6,mannose,Sugars,180.156,0.127
+C12H22O11,starch,Sugars,342.297,0.0146

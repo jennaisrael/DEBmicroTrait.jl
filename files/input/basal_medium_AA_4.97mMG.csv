@@ -1,0 +1,21 @@
+﻿Name,Quantity,Unit,Compound,Formula,Quantity,Unit,Molecular_weight,Concentration,Unit,Ontology
+Main Compound,0.8953952,g,glucose,C6H12O6,100,%,180.16,4.97,mmol/L,Sugars
+MEM 50X dil to 1X,0.1264,g,L-Arginine hydrochloride,C6H14N4O2,100,%,211,0.59905212,mmol/L,Amino acids
+MEM 50X dil to 1X,0.024,g,L-Cystine,C6H12N2O4S2,100,%,240,0.1,mmol/L,Amino acids
+MEM 50X dil to 1X,0.042,g,L-Histidine hydrochloride-H2O,C6H9NO2,100,%,210,0.2,mmol/L,Amino acids
+MEM 50X dil to 1X,0.0524,g,L-Isoleucine,C6H13NO2,100,%,131,0.4,mmol/L,Amino acids
+MEM 50X dil to 1X,0.0524,g,L-Leucine,C6H13NO3,100,%,131,0.4,mmol/L,Amino acids
+MEM 50X dil to 1X,0.0725,g,L-Lysine hydrochloride,C6H13NO3,100,%,183,0.39617486,mmol/L,Amino acids
+MEM 50X dil to 1X,0.0151,g,L-Methionine,C6H13NO3,100,%,149,0.10134228,mmol/L,Amino acids
+MEM 50X dil to 1X,0.033,g,L-Phenylalanine,C9H11NO2,100,%,165,0.2,mmol/L,Amino acids
+MEM 50X dil to 1X,0.0476,g,L-Threonine,C4H9NO3,100,%,119,0.4,mmol/L,Amino acids
+MEM 50X dil to 1X,0.0102,g,L-Tryptophan,C11H12N2O2,100,%,204,0.05,mmol/L,Amino acids
+MEM 50X dil to 1X,0.036,g,L-Tyrosine,C9H11NO3,100,%,181,0.19889504,mmol/L,Amino acids
+MEM 50X dil to 1X,0.0468,g,L-Valine,C5H11NO2,100,%,117,0.4,mmol/L,Amino acids
+NEAA MEM 100X dil to 1X,0.0075,g,Glycine,C2H5NO2,100,%,75,0.1,mmol/L,Amino acids
+NEAA MEM 100X dil to 1X,0.0089,g,L-Alanine,C3H7NO2,100,%,89,0.1,mmol/L,Amino acids
+NEAA MEM 100X dil to 1X,0.0132,g,L-Asparagine,C4H8N2O3,100,%,132,0.1,mmol/L,Amino acids
+NEAA MEM 100X dil to 1X,0.0133,g,L-Aspartic acid,C4H7NO4,100,%,133,0.1,mmol/L,Amino acids
+NEAA MEM 100X dil to 1X,0.0147,g,L-Glutamic Acid,C5H9NO4,100,%,147,0.1,mmol/L,Amino acids
+NEAA MEM 100X dil to 1X,0.0115,g,L-Proline,C5H9NO2,100,%,115,0.1,mmol/L,Amino acids
+NEAA MEM 100X dil to 1X,0.0105,g,L-Serine,C3H7NO3,100,%,105,0.1,mmol/L,Amino acids
