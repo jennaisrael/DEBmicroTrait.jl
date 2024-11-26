@@ -8,12 +8,15 @@ using LaTeXStrings
 dir                     = "DEBSCRIPTS" in keys(ENV) ? ENV["DEBSCRIPTS"] : pwd()
 
 #change this part for different strains and media
-fileend="basal_medium_AA_10_4.97mMG"
-id_isolate = 36 #HA54 is 7, HB15 is 30, HA57 is 37, HD57 is 36 
-iso_name = "HD57"
-datestr = "_2024_03_30"
+fileend="basal_medium_AbA0.1XAA"
+n_monomers = 20 #1 is only glucose, 20 is amino acids plus glucose
 
-writeflag=1
+id_isolate = 30 #HA54 is 7, HB15 is 30, HA57 is 37, HD57 is 36 
+iso_name = "HB15"
+datestr = "_2024_07_23"
+
+writeflag=0
+
 
 ########################################################################
 # Load media composition: Formula, Molecular weight, Medium concentration
@@ -38,7 +41,7 @@ initb                   = load(joinpath(dir, "files/output/isolates_batch_init.j
 ## Moved this line to beginning
 # id_isolate = 7 
 n_isolates = length(id_isolate)
-n_monomers = 20 #1 is only glucose, 20 is amino acids plus glucose
+# n_monomers = 20 #1 is only glucose, 20 is amino acids plus glucose
 
 p                 = DEBmicroTrait.init_mixed_medium(id_isolate, n_monomers, assimilation, enzymes, maintenance, protein_synthesis, turnover)
 n_polymers        = p.setup_pars.n_polymers
@@ -157,16 +160,16 @@ using Plots.PlotMeasures
 
 #l2 = @layout [a b] #initialize subplot layout
 
-# p8=plot(sol.t,BGE_tseries, legend=false)
-# ylabel!("BGE")
-# xlabel!("Time (hr)")
-# xlims!(0,50)
-
-p8=plot(sol.t, rcell, legend=false)
-ylabel!("Uptake Rate/ Cell [mol-C/mol reserve/ h/ cell]")
-xlabel!("Time (h)")
+p8=plot(sol.t,BGE_tseries, legend=false)
+ylabel!("BGE")
+xlabel!("Time (hr)")
 xlims!(0,50)
-#ylims!(-10,150)
+
+# p8=plot(sol.t, rcell, legend=false)
+# ylabel!("Uptake Rate/ Cell [mol-C/mol reserve/ h/ cell]")
+# xlabel!("Time (h)")
+# xlims!(0,50)
+# #ylims!(-10,150)
 
 
 
