@@ -15,7 +15,7 @@ df_isolates             = CSV.read(joinpath(dir, "files/input/isolates2traits.cs
 # unique_metabolites = combine(gdf, :Concentration => sum)
 # #write this to a CSV
 # CSV.write(joinpath(dir, "files/output2/basal_medium_unique.csv"),unique_metabolites)
-df_metabolites          = CSV.read(joinpath(dir, "files/input/basal_medium.csv"), DataFrame, missingstring="N/A")
+df_metabolites          = CSV.read(joinpath(dir, "files/input/basal_medium_AbA.csv"), DataFrame, missingstring="N/A")
 ########################################
 # metabolite traits, replace "Name" with "Compound"
 df_metabolites.Formula  = convert.(String, df_metabolites.Formula)
@@ -118,4 +118,4 @@ a_s               = Vmax./K_D
 ########################################
 # I/O
 # save("/Users/glmarschmann/.julia/dev/DEBmicroTrait/files/output/isolates_assimilation_10_R2A.jld", "rho", ρ_ps, "NSB", N_SB, "KD", K_D, "yEM", y_EM, "yDE", y_DEs, "NC", N_C)
-save("./files/output/isolates_assimilation_basal_medium.jld", "rho", ρ_ps, "NSB", N_SB, "KD", K_D, "yEM", y_EM, "yDE", y_DEs, "NC", N_C)
+save("./files/output/isolates_assimilation_basal_medium_AbA.jld", "rho", ρ_ps, "NSB", N_SB, "KD", K_D, "yEM", y_EM, "yDE", y_DEs, "NC", N_C)

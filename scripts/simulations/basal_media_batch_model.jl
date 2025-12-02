@@ -8,12 +8,12 @@ using LaTeXStrings
 dir                     = "DEBSCRIPTS" in keys(ENV) ? ENV["DEBSCRIPTS"] : pwd()
 
 #change this part for different strains and media
-fileend="basal_medium_AbA0.1XAA"
-n_monomers = 20 #1 is only glucose, 20 is amino acids plus glucose
+fileend="basal_medium_AbA"
+n_monomers = 1 #1 is only glucose, 20 is amino acids plus glucose
 
-id_isolate = 30 #HA54 is 7, HB15 is 30, HA57 is 37, HD57 is 36 
-iso_name = "HB15"
-datestr = "_2024_07_23"
+id_isolate = 1 #HA54 is 7, HB15 is 30, HA57 is 37, HD57 is 36 
+iso_name = "HE68"
+datestr = "_2025_04_11"
 
 writeflag=0
 
