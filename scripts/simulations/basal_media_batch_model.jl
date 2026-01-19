@@ -6,16 +6,16 @@ using Plots
 using LaTeXStrings
 
 dir                     = "DEBSCRIPTS" in keys(ENV) ? ENV["DEBSCRIPTS"] : pwd()
-
+#UPDATE 01/18/2026: use isolates_batch_init_10_5.jld which initializes 10^5 cells per mL (gram) to match the symcel experiments
 #change this part for different strains and media
-fileend="basal_medium_AbA"
-n_monomers = 1 #1 is only glucose, 20 is amino acids plus glucose
+fileend="basal_medium_1.125mM_FA"
+n_monomers = 1 #1 is only glucose, 20 is amino acids plus glucose, 3 is C source plus lysine and glycine
 
-id_isolate = 1 #HA54 is 7, HB15 is 30, HA57 is 37, HD57 is 36 
-iso_name = "HE68"
-datestr = "_2025_04_11"
+id_isolate = 30 #HA54 is 7, HB15 is 30, HA57 is 37, HD57 is 36 
+iso_name = "HB15"
+datestr = "_2026_01_18"
 
-writeflag=0
+writeflag=1
 
 
 ########################################################################
@@ -36,7 +36,7 @@ enzymes                 = load(joinpath(dir, "files/output/isolates_enzymes.jld"
 maintenance             = load(joinpath(dir, "files/output/isolates_maintenance.jld"))
 protein_synthesis       = load(joinpath(dir, "files/output/isolates_protein_synthesis.jld"))
 turnover                = load(joinpath(dir, "files/output/isolates_turnover.jld"))
-initb                   = load(joinpath(dir, "files/output/isolates_batch_init.jld"))
+initb                   = load(joinpath(dir, "files/output/isolates_batch_init_10_5.jld"))
 
 ## Moved this line to beginning
 # id_isolate = 7 
@@ -163,7 +163,7 @@ using Plots.PlotMeasures
 p8=plot(sol.t,BGE_tseries, legend=false)
 ylabel!("BGE")
 xlabel!("Time (hr)")
-xlims!(0,50)
+xlims!(0,xend)
 
 # p8=plot(sol.t, rcell, legend=false)
 # ylabel!("Uptake Rate/ Cell [mol-C/mol reserve/ h/ cell]")
@@ -176,7 +176,7 @@ xlims!(0,50)
 p9=plot(sol.t, r, legend=false)
 ylabel!("growth rate [1/hr]")
 xlabel!("Time (hr)")
-xlims!(0,50)
+xlims!(0,xend)
 
 p10= plot(p1, p2, p3, p4, p5, p6, p8, p9, layout = l, size=(1200,800),left_margin=[20mm 0mm])
 #display(p7)

@@ -47,7 +47,7 @@ N_cells_tseries   = zeros(39, 84, 500)
 maintenance_tseries    = zeros(39, 84, 500)
 
 for i in 1:39
-    for j in 1:84
+    for j in 1:83
         id_isolate = i
         id_monomer = j
 
@@ -132,7 +132,7 @@ end
 
 
 # Define compound and microbe IDs
-compound_ids = Dict(:glucose => 29, :ethanol => 84)
+compound_ids = Dict(:glucose => 29, :abscisic_acid =>5)#:ethanol => 84)
 microbe_ids = Dict("HA54" => 7)
 
 
@@ -164,7 +164,7 @@ function co2_and_energy_components(microbe_id, compound_id)
     return rG, rM, rX, rA, dH_G, dH_M, dH_X, dH_A, Et, Vt, Ncells, Dt
 end
 
-compound_id = 84
+compound_id = 5#84
 elementstring = String(df_metabolites.Formula[compound_id])
 stoich = DEBmicroTrait.extract_composition(elementstring)
 γ_D  = (4*stoich[1] + stoich[2] - 3*stoich[3] - 2*stoich[4] + 6*stoich[5] +5*stoich[6]) / stoich[1]
@@ -276,7 +276,7 @@ plot_grid = []
 
 for (microbe_label, microbe_id) in microbe_ids
     for (compound_label, compound_id) in compound_ids
-        rG, rM, rX, rA = co2_components(microbe_id, compound_id)
+        rG, rM, rX, rA = co2_and_energy_components(microbe_id, compound_id) #changed this
 
         # Cumulative sum
         cum_rG = cumsum(rG[time])
@@ -341,32 +341,54 @@ plot(CO2_sucrose[1:100])
 plot!(CO2_nicotinic[1:100])
 plot!(CO2_IAA[1:100])
 
+ #This section is not going to work because the mean is being taken before the sum is taken
+# rG_CO2_sucrose = sum(rG_CO2_tseries, dims=1)[1,id_sucrose,:]
+# rG_CO2_nicotinic = sum(rG_CO2_tseries, dims=1)[id_HA54,id_nicotinic,:]
+# rG_CO2_IAA = sum(rG_CO2_tseries, dims=1)[id_HA54,id_IAA,:]
+# rG_CO2_tryptophan = sum(rG_CO2_tseries, dims=1)[id_HA54,id_tryptophan,:]
 
-rG_CO2_sucrose = sum(rG_CO2_tseries, dims=1)[1,id_sucrose,:]
-rG_CO2_nicotinic = sum(rG_CO2_tseries, dims=1)[id_HA54,id_nicotinic,:]
-rG_CO2_IAA = sum(rG_CO2_tseries, dims=1)[id_HA54,id_IAA,:]
-rG_CO2_tryptophan = sum(rG_CO2_tseries, dims=1)[id_HA54,id_tryptophan,:]
+# rM_CO2_sucrose = sum(rM_CO2_tseries, dims=1)[1,id_sucrose,:]
+# rM_CO2_nicotinic = sum(rM_CO2_tseries, dims=1)[1,id_nicotinic,:]
+# rM_CO2_IAA = sum(rM_CO2_tseries, dims=1)[1,id_IAA,:]
+# rM_CO2_tryptophan = sum(rM_CO2_tseries, dims=1)[1,id_tryptophan,:]
 
-rM_CO2_sucrose = sum(rM_CO2_tseries, dims=1)[1,id_sucrose,:]
-rM_CO2_nicotinic = sum(rM_CO2_tseries, dims=1)[1,id_nicotinic,:]
-rM_CO2_IAA = sum(rM_CO2_tseries, dims=1)[1,id_IAA,:]
-rM_CO2_tryptophan = sum(rM_CO2_tseries, dims=1)[1,id_tryptophan,:]
+# rX_CO2_sucrose = sum(rX_CO2_tseries, dims=1)[1,id_sucrose,:]
+# rX_CO2_nicotinic = sum(rX_CO2_tseries, dims=1)[1,id_nicotinic,:]
+# rX_CO2_IAA = sum(rX_CO2_tseries, dims=1)[1,id_IAA,:]
+# rX_CO2_tryptophan = sum(rX_CO2_tseries, dims=1)[1,id_tryptophan,:]
 
-rX_CO2_sucrose = sum(rX_CO2_tseries, dims=1)[1,id_sucrose,:]
-rX_CO2_nicotinic = sum(rX_CO2_tseries, dims=1)[1,id_nicotinic,:]
-rX_CO2_IAA = sum(rX_CO2_tseries, dims=1)[1,id_IAA,:]
-rX_CO2_tryptophan = sum(rX_CO2_tseries, dims=1)[1,id_tryptophan,:]
+# rA_CO2_sucrose = sum(J_DE_CO2_tseries, dims=1)[1,id_sucrose,:]
+# rA_CO2_nicotinic = sum(J_DE_CO2_tseries, dims=1)[1,id_nicotinic,:]
+# rA_CO2_IAA = sum(J_DE_CO2_tseries, dims=1)[1,id_IAA,:]
+# rA_CO2_tryptophan = sum(J_DE_CO2_tseries, dims=1)[1,id_tryptophan,:]
 
-rA_CO2_sucrose = sum(J_DE_CO2_tseries, dims=1)[1,id_sucrose,:]
-rA_CO2_nicotinic = sum(J_DE_CO2_tseries, dims=1)[1,id_nicotinic,:]
-rA_CO2_IAA = sum(J_DE_CO2_tseries, dims=1)[1,id_IAA,:]
-rA_CO2_tryptophan = sum(J_DE_CO2_tseries, dims=1)[1,id_tryptophan,:]
+rG_CO2_sucrose = sum(rG_CO2_tseries[1,id_sucrose,:], dims=1)
+rG_CO2_nicotinic = sum(rG_CO2_tseries[id_HA54,id_nicotinic,:], dims=1)
+rG_CO2_IAA = sum(rG_CO2_tseries[id_HA54,id_IAA,:], dims=1)
+rG_CO2_tryptophan = sum(rG_CO2_tseries[id_HA54,id_tryptophan,:], dims=1)
 
+rM_CO2_sucrose = sum(rM_CO2_tseries[1,id_sucrose,:], dims=1)
+rM_CO2_nicotinic = sum(rM_CO2_tseries[1,id_nicotinic,:], dims=1)
+rM_CO2_IAA = sum(rM_CO2_tseries[1,id_IAA,:], dims=1)
+rM_CO2_tryptophan = sum(rM_CO2_tseries[1,id_tryptophan,:], dims=1)
+
+rX_CO2_sucrose = sum(rX_CO2_tseries[1,id_sucrose,:], dims=1)
+rX_CO2_nicotinic = sum(rX_CO2_tseries[1,id_nicotinic,:], dims=1)
+rX_CO2_IAA = sum(rX_CO2_tseries[1,id_IAA,:], dims=1)
+rX_CO2_tryptophan = sum(rX_CO2_tseries[1,id_tryptophan,:], dims=1)
+
+rA_CO2_sucrose = sum(J_DE_CO2_tseries[1,id_sucrose,:], dims=1)
+rA_CO2_nicotinic = sum(J_DE_CO2_tseries[1,id_nicotinic,:], dims=1)
+rA_CO2_IAA = sum(J_DE_CO2_tseries[1,id_IAA,:], dims=1)
+rA_CO2_tryptophan = sum(J_DE_CO2_tseries[1,id_tryptophan,:], dims=1)
+
+# Are these supposed to be scalars?
 CO2_sucrose = @. rG_CO2_sucrose + rM_CO2_sucrose + rX_CO2_sucrose + rA_CO2_sucrose
 CO2_nicotinic = @. rG_CO2_nicotinic + rM_CO2_nicotinic + rX_CO2_nicotinic + rA_CO2_nicotinic
 CO2_IAA = @. rG_CO2_IAA + rM_CO2_IAA + rX_CO2_IAA + rA_CO2_IAA
 CO2_tryptophan = @. rG_CO2_tryptophan + rM_CO2_tryptophan + rX_CO2_tryptophan + rA_CO2_tryptophan
 
+#
 plot(CO2_sucrose[1:100])
 plot!(CO2_nicotinic[1:100])
 plot!(CO2_IAA[1:100])
@@ -501,7 +523,7 @@ for i in 1:83
      ontology[:,i] .= df_metabolites.Ontology[i]
  end
 df_out.ontology = vec(ontology)
-CSV.write(joinpath(dir, "files/output/isolates_batch_model_fluxes.csv"), df_out)
+CSV.write(joinpath(dir, "files/output/isolates_batch_model_fluxes_2025_12_02.csv"), df_out)
 
 # output BGE-growth
 
@@ -579,7 +601,7 @@ df_out_bge.BGE = vec(BGE_median)
 df_out_bge.rgrowth = vec(r_median)
 df_out_bge.BP = vec(BP_median)
 df_out_bge.BR = vec(BR_median)
-CSV.write(joinpath(dir, "files/output/isolates_batch_model_BGE.csv"), df_out_bge)
+CSV.write(joinpath(dir, "files/output/isolates_batch_model_BGE_2025_12_02.csv"), df_out_bge)
 
 # filter by substrate preference
 
@@ -667,4 +689,4 @@ for i in 1:83
  end
 df_all.eta = vec(eta_eff)
 
-CSV.write(joinpath(dir, "files/output/isolates_batch_model_all.csv"), df_all)
+CSV.write(joinpath(dir, "files/output/isolates_batch_model_all_2025_12_02.csv"), df_all)

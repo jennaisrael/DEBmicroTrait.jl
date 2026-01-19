@@ -1,0 +1,4 @@
+﻿Name,Quantity,Unit,Compound,Formula,Quantity,Unit,Molecular_weight,Concentration,Unit,Ontology
+Main Compound,0.13512,g,glucose,C6H12O6,100,%,180.16,0.75,mmol/L,Sugars
+Lysine,0.0087657,g,L-Lysine hydrochloride,C6H13NO3,100,%,183,0.0479,mmol/L,Amino acids
+Glycine,0.0062925,g,Glycine,C2H5NO2,100,%,75,0.0839,mmol/L,Amino acids
